@@ -4,40 +4,50 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
+use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
 {
-    // Show all courses
+    // Show all courses with join buttons
     public function index()
     {
         $courses = Course::all();
         return view('courses.index', compact('courses'));
     }
 
-    // Show add course form
+    // Show simple add course form
     public function create()
     {
         return view('courses.create');
     }
 
-    // Store new course (untuk nanti)
+    // Store new course
     public function store(Request $request)
     {
-        // Logic akan ditambahkan nanti
-        return redirect()->route('courses.index')->with('success', 'Course will be added');
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'kode' => 'required|string|max:10',
+            'kuota' => 'required|integer|min:1'
+        ]);
+
+        Course::create([
+            'name' => $request->nama,
+            'code' => $request->kode,
+            'capacity' => $request->kuota,
+            'description' => $request->deskripsi ?? ''
+        ]);
+
+        return redirect()->route('courses.index')->with('success', 'Course berhasil ditambahkan!');
     }
 
-    // Show course details and enrollment form
-    public function show($id)
+    // Join course directly
+    public function join($id)
     {
         $course = Course::findOrFail($id);
-        return view('courses.show', compact('course'));
-    }
-
-    // Enroll to course (untuk nanti)
-    public function enroll(Request $request, $id)
-    {
-        // Logic akan ditambahkan nanti
-        return redirect()->route('courses.show', $id)->with('success', 'You will be enrolled');
+        
+        // Simple join logic - just add to relationship (implement later)
+        // For now just show success message
+        
+        return redirect()->route('courses.index')->with('success', 'Berhasil join course: ' . $course->name);
     }
 }
