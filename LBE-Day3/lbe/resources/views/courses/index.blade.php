@@ -106,6 +106,30 @@
             margin-bottom: 20px;
             border-left: 4px solid #28a745;
         }
+        .warning-alert {
+            background: #fff3cd; 
+            color: #856404; 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        .error-alert {
+            background: #f8d7da; 
+            color: #721c24; 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+        }
+        .info-alert {
+            background: #d1ecf1; 
+            color: #0c5460; 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin-bottom: 20px;
+            border-left: 4px solid #17a2b8;
+        }
     </style>
 </head>
 <body>
@@ -129,6 +153,24 @@
         </div>
     @endif
 
+    @if(session('warning'))
+        <div class="warning-alert">
+            {{ session('warning') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="error-alert">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if(session('info'))
+        <div class="info-alert">
+            {{ session('info') }}
+        </div>
+    @endif
+
     @if($courses->count() > 0)
         @foreach($courses as $course)
             <div class="course-card">
@@ -137,17 +179,34 @@
                     <span class="course-code">{{ $course->kode ?? 'No Code' }}</span>
                 </div>                
                 <div class="course-info">
-                    👥 <strong>Kapasitas:</strong> {{ $course->kuota }} students
+                    👥 <strong>Kapasitas:</strong> {{ $course->users()->count() }}/{{ $course->kuota }} students
                     @if($course->created_at)
                         | 📅 <strong>Dibuat:</strong> {{ $course->created_at->format('d M Y') }}
                     @endif
                 </div>
                 
                 <div class="course-actions">
-                    <form method="POST" action="{{ route('courses.join', $course->id) }}" style="margin: 0;">
-                        @csrf
-                        <button type="submit" class="btn btn-primary">🚀 Join Course</button>
-                    </form>
+                    @php
+                        $user = Auth::user();
+                        $userCourses = \App\Models\User::find($user->id)->courses()->pluck('course_id')->toArray();
+                        $isEnrolled = in_array($course->id, $userCourses);
+                        $isInWaitlist = \App\Models\Waitlist::where('user_id', $user->id)->where('course_id', $course->id)->exists();
+                    @endphp
+                    
+                    @if($isEnrolled)
+                        <span class="btn btn-success" style="opacity: 0.7;">✅ Enrolled</span>
+                        <form method="POST" action="{{ route('courses.leave', $course->id) }}" style="margin: 0;">
+                            @csrf
+                            <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to leave this course?')">🚪 Leave Course</button>
+                        </form>
+                    @elseif($isInWaitlist)
+                        <span class="btn btn-warning" style="opacity: 0.7;">⏳ In Waitlist</span>
+                    @else
+                        <form method="POST" action="{{ route('courses.join', $course->id) }}" style="margin: 0;">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">🚀 Join Course</button>
+                        </form>
+                    @endif
                 </div>
             </div>
         @endforeach

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class WaitList extends Model
 {
+    protected $table = 'waitlists';
+
     protected $fillable = [
         'user_id',
         'course_id',

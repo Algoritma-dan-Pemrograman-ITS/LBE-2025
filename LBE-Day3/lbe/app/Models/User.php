@@ -45,4 +45,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function courses()
+    {
+        return $this->belongsToMany(\App\Models\Course::class, 'course_student', 'user_id', 'course_id'); // otomatis buat tabel pivot
+    }
+    public function waitlist()
+    {
+        return $this->hasMany(\App\Models\Waitlist::class);
+    }
 }

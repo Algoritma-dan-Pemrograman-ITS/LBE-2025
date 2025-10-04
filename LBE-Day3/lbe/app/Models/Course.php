@@ -9,18 +9,19 @@ class Course extends Model
     protected $fillable = [
         'kode', 
         'nama', 
-        'kuota', 
+        'kuota',
+        'deskripsi',
     ];
 
     // relasi many-to-many mahasiswa dengan course
-    public function user()
+    public function users()
     {
-        return $this->belongsToMany(User::class, 'course_user'); // otomatis buat tabel pivot 
+        return $this->belongsToMany(\App\Models\User::class, 'course_student', 'course_id', 'user_id'); // otomatis buat tabel pivot 
     }
 
     // relasi one-to-many ke waitlist
     public function waitlists()
     {
-        return $this->hasMany(Waitlist::class);
+        return $this->hasMany(\App\Models\Waitlist::class);
     }
 }

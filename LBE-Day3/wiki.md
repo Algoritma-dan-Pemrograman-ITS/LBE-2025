@@ -3,7 +3,6 @@
   - [Queue](#queue)
     - [Waitlist Mata Kuliah](#waitlist-mata-kuliah)
   - [Hash Table/Map](#hash-tablemap)
-    - [Cache dengan Hash Table](#cache-dengan-hash-table)
   - [Graf](#graf)
 
 ## Queue
@@ -235,12 +234,9 @@ Berikut langkah-langkah untuk penerapannya
         }
     }
 
-   ```
-6. 
-
+   ``` 
 ## Hash Table/Map
 Hash Table atau Map banyak digunakan untuk pencarian data dengan kompleksitas waktu rata-rata O(1). Dalam sistem web, hash table banyak dipakai di _session management_ dan _caching_, dua hal yang krusial agar aplikasi tetap berjalan dengan aman dan cepat. Beberapa database modern (seperti Redis) menggunakan hash table di dalamnya.  
-### Cache dengan Hash Table
 
 ## Graf
 Graf digunakan untuk memodelkan koneksi, hubungan, atau jaringan yang kompleks. Hubungan-hubungan antar tabel dalam database sebenarnya direpresentasikan dengan graf. Bahkan saat ini, terdapat database khusus yang dibuat dalam representasi graf seperti Neo4j. Selain itu, banyak penerapan graf lainnya misalnya 

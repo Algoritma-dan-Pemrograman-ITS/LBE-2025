@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
 
-// Redirect home to courses
 Route::get('/', function () {
     return redirect()->route('courses.index');
 });
@@ -21,10 +20,10 @@ Route::post('/logout', function () {
     return redirect()->route('login');
 })->name('logout');
 
-// Simple Course Routes - only 2 pages
 Route::middleware('auth')->group(function () {
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
     Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
     Route::post('/courses/{id}/join', [CourseController::class, 'join'])->name('courses.join');
+    Route::post('/courses/{id}/leave', [CourseController::class, 'leave'])->name('courses.leave');
 });

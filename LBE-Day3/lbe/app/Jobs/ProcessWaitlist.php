@@ -3,22 +3,21 @@
 namespace App\Jobs;
 
 use App\Models\Course;
-use App\Models\WaitList;
+use App\Models\Waitlist;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
 class ProcessWaitlist implements ShouldQueue
 {
     use Queueable;
-    protected $studentId, $courseId;
+    protected $course;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($studentId, $courseId)
+    public function __construct(Course $course)
     {
-        $this->studentId = $studentId;
-        $this->courseId = $courseId;
+        $this->course = $course;
     }
 
     /**
@@ -26,22 +25,26 @@ class ProcessWaitlist implements ShouldQueue
      */
     public function handle(): void
     {
-        $course = Course::find($this->courseId);
-
-        if ($course->students()->count() < $course->quota) {
-            $course->students()->attach($this->studentId);
-
-            WaitList::create([
-                'student_id' => $this->studentId,
-                'course_id'  => $this->courseId,
-                'status'     => 'accepted'
-            ]);
-        } else {
-            WaitList::create([
-                'student_id' => $this->studentId,
-                'course_id'  => $this->courseId,
-                'status'     => 'waiting'
-            ]);
+        $course = $this->course;
+        
+        // Check if there are available spots
+        $currentEnrollment = $course->users()->count();
+        $availableSpots = $course->kuota - $currentEnrollment;
+        
+        if ($availableSpots > 0) {
+            // Get waitlisted users for this course
+            $waitlistUsers = Waitlist::where('course_id', $course->id)
+                ->orderBy('created_at', 'asc')
+                ->limit($availableSpots)
+                ->get();
+            
+            foreach ($waitlistUsers as $waitlistEntry) {
+                // Add user to course
+                $course->users()->attach($waitlistEntry->user_id);
+                
+                // Remove from waitlist
+                $waitlistEntry->delete();
+            }
         }
     }
 }
